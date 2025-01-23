@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PreciseTraders - Next-Gen Forex Trading Platform</title>
+    
+    <!-- Enhanced Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --accent: #3b82f6;
+            --success: #059669;
+        }
+
+        /* Enhanced scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(241, 241, 241, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        /* 3D Scene Container */
+        #trading-scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        /* Enhanced Floating Animation */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(2deg); }
+            75% { transform: translateY(10px) rotate(-2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        .float {
+            animation: float 8s ease-in-out infinite;
+        }
+
+        /* Enhanced Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        /* Advanced Card Effects */
+        .feature-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px) rotateX(10deg) rotateY(10deg);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: all 0.6s ease;
+            transform: translateY(100%);
+        }
+
+        .feature-card:hover::before {
+            transform: translateY(-100%);
+        }
+
+        /* Particle effects container */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* Enhanced visibility fixes for text */
+        .benefits-list li {
+            transform: translateX(0);
+            opacity: 1;
+            transition: all 0.5s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .benefits-list li::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: var(--success);
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        /* Magnetic Button Effect */
+        .magnetic-button {
+            position: relative;
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+        }
+
+        /* Custom Cursor */
+        .custom-cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.1s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .custom-cursor.active {
+            transform: translate(-50%, -50%) scale(1.5);
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-animation {
+            width: 200px;
+            height: 200px;
+        }
+
+        /* Text Gradient Effect */
+        .text-gradient {
+            background: linear-gradient(45deg, #2563eb, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Chart Animation Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Success Stories Carousel */
+        .success-stories {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .story-card {
+            transform-style: preserve-3d;
+            transition: all 0.5s ease;
+        }
+
+        /* Responsive Design Enhancements */
+        @media (max-width: 768px) {
+            .feature-card {
+                transform: none !important;
+            }
+            
+            #trading-scene {
+                height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 relative">
+    <!-- Custom Cursor -->
+    <div class="custom-cursor hidden md:block"></div>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen">
+        <div class="loading-animation" id="loading-lottie"></div>
+    </div>
+
+    <!-- 3D Scene Background -->
+    <canvas id="trading-scene"></canvas>
+
+    <!-- Particles Effect -->
+    <div id="particles-js" class="opacity-30"></div>
+
+    <!-- Enhanced Navbar -->
+    <nav class="fixed w-full z-50 glass">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <img src="https://github.com/DecroXX69/landing/blob/6e1653744d7120f47e728f75c8e80c6041ae0c21/logo.png?raw=true" alt="PreciseTraders Logo" class="h-10">
+                    <div class="hidden md:flex space-x-6">
+                        <a href="#features" class="text-white hover:text-blue-400 transition-colors">Features</a>
+                        <a href="#benefits" class="text-white hover:text-blue-400 transition-colors">Benefits</a>
+                        <a href="#testimonials" class="text-white hover:text-blue-400 transition-colors">Testimonials</a>
+                    </div>
+                </div>
+                <button class="magnetic-button bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-full transition-all transform hover:scale-105 text-white">
+                    Login
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Enhanced Hero Section -->
+    <section class="relative min-h-screen pt-32 pb-20 overflow-hidden">
+       <!-- Update the Hero Section heading to include IDs -->
+<div class="max-w-7xl mx-auto px-6 text-center text-white relative z-10">
+    <h1 id="hero-title" class="text-5xl md:text-7xl font-bold mb-6 text-gradient">
+        Transform Your Trading Journey
+    </h1>
+    <p id="hero-subtitle" class="text-xl md:text-2xl text-gray-300 mb-12">
+        Join thousands of successful traders who have mastered the forex market with PreciseTraders' expert guidance and cutting-edge tools.
+    </p>
+    <div class="chart-container" id="hero-chart"></div>
+</div>
+    </section>
+
+    <!-- Enhanced Features Section -->
+   <!-- Add this inside the Features Section div -->
+<div class="max-w-7xl mx-auto px-6 -mt-20 relative z-20 grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="feature-card bg-white/10 p-8 rounded-2xl backdrop-blur-lg">
+        <div class="relative z-10">
+            <i class="fas fa-chart-line text-4xl text-blue-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-white mb-2">Expert Analysis</h3>
+            <p class="text-gray-300">Get real-time market insights and expert analysis to make informed trading decisions.</p>
+        </div>
+    </div>
+    
+    <div class="feature-card bg-white/10 p-8 rounded-2xl backdrop-blur-lg">
+        <div class="relative z-10">
+            <i class="fas fa-robot text-4xl text-blue-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-white mb-2">AI-Powered Trading</h3>
+            <p class="text-gray-300">Leverage advanced algorithms and machine learning for optimal trade execution.</p>
+        </div>
+    </div>
+    
+    <div class="feature-card bg-white/10 p-8 rounded-2xl backdrop-blur-lg">
+        <div class="relative z-10">
+            <i class="fas fa-shield-alt text-4xl text-blue-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-white mb-2">Risk Management</h3>
+            <p class="text-gray-300">Advanced tools to protect your investments and optimize your trading strategy.</p>
+        </div>
+    </div>
+</div>
+
+    <!-- Main Content with Enhanced Visibility -->
+    <main class="max-w-7xl mx-auto px-6 py-20 grid grid-cols-1 lg:grid-cols-5 gap-12">
+        <!-- Content Section -->
+        <div class="lg:col-span-3 glass rounded-2xl p-8 text-white">
+            <div class="benefits-section relative">
+                <span class="inline-block bg-green-600 text-white px-4 py-1 rounded-full text-sm mb-6">
+                    Limited Time Offer
+                </span>
+                <h2 class="text-3xl font-bold mb-6">Start Your Professional Trading Career Today</h2>
+                
+                <div class="space-y-8">
+                    <div class="relative z-10">
+                        <h3 class="text-xl font-semibold mb-4">What You'll Get:</h3>
+                        <ul class="benefits-list space-y-4">
+                            <li class="pl-8 opacity-0">Advanced real-time market analysis with AI-powered insights</li>
+                            <li class="pl-8 opacity-0">Professional trading tools and customizable dashboard</li>
+                            <li class="pl-8 opacity-0">24/7 expert support and community access</li>
+                            <li class="pl-8 opacity-0">Risk management tools and position sizing calculator</li>
+                            <li class="pl-8 opacity-0">Comprehensive educational resources and webinars</li>
+                            <li class="pl-8 opacity-0">Mobile trading app with real-time notifications</li>
+                        </ul>
+                    </div>
+            
+                    <!-- Add Bonus Package Section -->
+                    <div class="relative z-10 mt-12">
+                        <div class="inline-block bg-blue-600 text-white px-6 py-2 rounded-full text-lg font-semibold mb-6">
+                            Bonus Package Worth $997 - FREE
+                        </div>
+                        <ul class="benefits-list space-y-4">
+                            <li class="pl-8 opacity-0">"Advanced Forex Strategies" eBook</li>
+                            <li class="pl-8 opacity-0">Live Masterclass Session</li>
+                            <li class="pl-8 opacity-0">30-Day Premium Signal Service</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Signup Form -->
+        <div class="lg:col-span-2">
+            <div class="glass rounded-2xl p-8 text-white sticky top-24">
+                <form class="space-y-6">
+                    <div class="relative">
+                        <label for="name" class="absolute left-3 top-3 transition-all duration-300">Full Name</label>
+                        <input type="text" id="name" name="name" class="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
+                    </div>
+                    
+                    <div class="relative">
+                        <label for="email" class="absolute left-3 top-3 transition-all duration-300">Email Address</label>
+                        <input type="email" id="email" name="email" class="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
+                    </div>
+        
+                    <div class="relative">
+                        <label for="mobile" class="absolute left-3 top-3 transition-all duration-300">Mobile Number</label>
+                        <input type="tel" id="mobile" name="mobile" class="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
+                    </div>
+                    
+                    <div class="relative">
+                        <label for="experience" class="absolute left-3 top-3 transition-all duration-300">Trading Experience</label>
+                        <select id="experience" name="experience" class="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-3 text-white focus:outline-none focus:border-blue-500 transition-all">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all transform hover:scale-105">
+                        Start Trading Now
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900/50 text-white py-8 text-center glass">
+        <p>&copy; 2025 PreciseTraders. All rights reserved.</p>
+    </footer>
+
+    <!-- Enhanced JavaScript -->
+    <script>
+        // Initialize loading screen with Lottie animation
+        const loadingAnimation = lottie.loadAnimation({
+            container: document.getElementById('loading-lottie'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: 'https://assets2.lottiefiles.com/packages/lf20_p8bfn5to.json'
+        });
+
+        // Remove loading screen after assets are loaded
+        window.addEventListener('load', () => {
+            gsap.to('.loading-screen', {
+                duration: 1,
+                opacity: 0,
+                onComplete: () => {
+                    document.querySelector('.loading-screen').style.display = 'none';
+                }
+            });
+        });
+
+        // Initialize 3D Scene
+        const initTradingScene = () => {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({
+                canvas: document.querySelector('#trading-scene'),
+                alpha: true
+            });
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // Create abstract trading visualization
+            const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+            const material = new THREE.MeshPhongMaterial({
+                color: 0x2563eb,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.3
+            });
+            const torusKnot = new THREE.Mesh(geometry, material);
+            scene.add(torusKnot);
+
+            // Add ambient light
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            // Add point light
+            const pointLight = new THREE.PointLight(0x3b82f6, 1);
+            pointLight.position.set(25, 25, 25);
+            scene.add(pointLight);
+
+            camera.position.z = 30;
+
+            // Animation loop
+            const animate = () => {
+                requestAnimationFrame(animate);
+                torusKnot.rotation.x += 0.01;
+                torusKnot.rotation.y += 0.01;
+                renderer.render(scene, camera);
+            };
+
+            animate();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        };
+
+        // Custom cursor implementation
+        const cursor = document.querySelector('.custom-cursor');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        document.addEventListener('mousedown', () => cursor.classList.add('active'));
+        document.addEventListener('mouseup', () => cursor.classList.remove('active'));
+
+        // Enhanced particles configuration
+        particlesJS('particles-js', {
+            particles: {
+                number: {
+                    value: 100,
+                    density: {
+                        enable: true,
+                        value_area: 800
+                    }
+                },
+                color: {
+                    value: '#ffffff'
+                },
+                shape: {
+                    type: 'circle',
+                    stroke: {
+                        width: 0,
+                        color: '#000000'
+                    }
+                },
+                opacity: {
+                    value: 0.5,
+                    random: true,
+                    animation: {
+                        enable: true,
+                        speed: 1,
+                        opacity_min: 0.1,
+                        sync: false
+                    }
+                },
+                size: {
+                    value: 3,
+                    random: true,
+                    animation: {
+                        enable: true,
+                        speed: 2,
+                        size_min: 0.1,
+                        sync: false
+                    }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#ffffff',
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: 'none',
+                    random: true,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false,
+                    attract: {
+                        enable: true,
+                        rotateX: 600,
+                        rotateY: 1200
+                    }
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: 'repulse'
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: 'push'
+                    },
+                    resize: true
+                },
+                modes: {
+                    repulse: {
+                        distance: 100,
+                        duration: 0.4
+                    },
+                    push: {
+                        particles_nb: 4
+                    }
+                }
+            },
+            retina_detect: true
+        });
+
+        // Magnetic button effect
+        const magneticButtons = document.querySelectorAll('.magnetic-button');
+        
+        magneticButtons.forEach(button => {
+            button.addEventListener('mousemove', (e) => {
+                const bounds = button.getBoundingClientRect();
+                const mouseX = e.clientX - bounds.left;
+                const mouseY = e.clientY - bounds.top;
+                const centerX = bounds.width / 2;
+                const centerY = bounds.height / 2;
+                const deltaX = mouseX - centerX;
+                const deltaY = mouseY - centerY;
+                
+                gsap.to(button, {
+                    duration: 0.3,
+                    x: deltaX * 0.3,
+                    y: deltaY * 0.3,
+                    ease: 'power2.out'
+                });
+            });
+
+            button.addEventListener('mouseleave', () => {
+                gsap.to(button, {
+                    duration: 0.3,
+                    x: 0,
+                    y: 0,
+                    ease: 'power2.out'
+                });
+            });
+        });
+
+        // Enhanced scroll animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Hero section animations
+        const heroTimeline = gsap.timeline();
+        
+        heroTimeline
+            .from('#hero-title', {
+                duration: 1.5,
+                y: 100,
+                opacity: 0,
+                ease: 'power4.out'
+            })
+            .from('#hero-subtitle', {
+                duration: 1,
+                y: 50,
+                opacity: 0,
+                ease: 'power3.out'
+            }, '-=0.8');
+
+        // Feature cards advanced animation
+        gsap.utils.toArray('.feature-card').forEach((card, index) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 80%',
+                    end: 'bottom 20%',
+                    toggleActions: 'play none none reverse'
+                },
+                duration: 1,
+                y: 100,
+                opacity: 0,
+                rotation: 5,
+                transformOrigin: 'center center',
+                ease: 'power3.out',
+                delay: index * 0.2
+            });
+        });
+
+        // Benefits list enhanced animation
+       // Update the benefits list animation
+    const benefitsTimeline = gsap.timeline({
+        scrollTrigger: {
+            trigger: '.benefits-section',
+            start: 'top 70%',
+            end: 'bottom 20%',
+            toggleActions: 'play none none reverse'
+        }
+    });
+
+    document.querySelectorAll('.benefits-list li').forEach((item, index) => {
+        benefitsTimeline.from(item, {
+            duration: 0.5,
+            x: -50,
+            opacity: 0,
+            ease: 'power2.out',
+            clearProps: 'all' // This ensures proper reset of properties
+        }, index * 0.1);
+    });
+
+        // Live chart animation in hero section
+        const createHeroChart = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const chartContainer = document.getElementById('hero-chart');
+            
+            canvas.width = chartContainer.offsetWidth;
+            canvas.height = chartContainer.offsetHeight;
+            chartContainer.appendChild(canvas);
+
+            const points = [];
+            const maxPoints = 100;
+
+            for (let i = 0; i < maxPoints; i++) {
+                points.push({
+                    x: i * (canvas.width / maxPoints),
+                    y: canvas.height / 2 + Math.sin(i * 0.1) * 50 + Math.random() * 20
+                });
+            }
+
+            const animate = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw line
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                
+                for (let i = 1; i < points.length - 2; i++) {
+                    const xc = (points[i].x + points[i + 1].x) / 2;
+                    const yc = (points[i].y + points[i + 1].y) / 2;
+                    ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+                }
+                
+                ctx.strokeStyle = 'rgba(59, 130, 246, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Update points
+                points.forEach(point => {
+                    point.y += Math.random() * 2 - 1;
+                });
+                
+                requestAnimationFrame(animate);
+            };
+
+            animate();
+        };
+
+        // Form validation and enhanced animations
+        const form = document.querySelector('form');
+        const inputs = form.querySelectorAll('input, select');
+
+        inputs.forEach(input => {
+            // Create floating label animation
+            const label = input.previousElementSibling;
+            
+            input.addEventListener('focus', () => {
+                gsap.to(label, {
+                    duration: 0.3,
+                    y: -20,
+                    scale: 0.8,
+                    color: '#3b82f6',
+                    ease: 'power2.out'
+                });
+            });
+
+            input.addEventListener('blur', () => {
+                if (!input.value) {
+                    gsap.to(label, {
+                        duration: 0.3,
+                        y: 0,
+                        scale: 1,
+                        color: '#ffffff',
+                        ease: 'power2.out'
+                    });
+                }
+            });
+        });
+
+        // Form submission animation and validation
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const button = form.querySelector('button[type="submit"]');
+            
+            // Validate form
+            let isValid = true;
+            inputs.forEach(input => {
+                if (!input.value) {
+                    isValid = false;
+                    gsap.to(input, {
+                        duration: 0.1,
+                        x: [-10, 10, -10, 10, 0],
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    });
+                }
+            });
+
+            if (!isValid) return;
+
+            // Submit animation
+            gsap.to(button, {
+                duration: 0.5,
+                scale: 0.95,
+                opacity: 0.8,
+                yoyo: true,
+                repeat: 1,
+                ease: 'power2.inOut',
+                onComplete: () => {
+                    // Here you would handle the actual form submission
+                    console.log('Form submitted:', Object.fromEntries(formData));
+                }
+            });
+        });
+
+        // Initialize all features
+        const init = () => {
+            initTradingScene();
+            createHeroChart();
+            
+            // Initialize intersection observer for additional animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px'
+            });
+
+            document.querySelectorAll('.animate-on-scroll').forEach(el => {
+                observer.observe(el);
+            });
+        };
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Handle window resize events
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                ScrollTrigger.refresh();
+                // Reinitialize chart if needed
+                const chartContainer = document.getElementById('hero-chart');
+                chartContainer.innerHTML = '';
+                createHeroChart();
+            }, 250);
+        });
+    </script>
+</body>
+</html>
